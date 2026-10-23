@@ -1,0 +1,69 @@
+END USER LICENSE AGREEMENT (EULA) - MYOVERLAY
+================================================================================
+IMPORTANT - READ CAREFULLY: This End User License Agreement ("EULA") is a legal
+agreement between you (either an individual or a single entity) and MyOverlay
+("Licensor") for the MyOverlay software product, including computer software,
+executable files, associated media, printed materials, and online or electronic
+documentation ("Software").
+
+BY INSTALLING, COPYING, OR OTHERWISE USING THE SOFTWARE, YOU AGREE TO BE BOUND
+BY THE TERMS OF THIS AGREEMENT. IF YOU DO NOT AGREE TO THE TERMS OF THIS
+AGREEMENT, DO NOT INSTALL OR USE THE SOFTWARE.
+
+1. PROPRIETARY RIGHTS & COPYRIGHT
+---------------------------------
+The Software is protected by copyright laws and international copyright treaties,
+as well as other intellectual property laws and treaties. The Software is licensed,
+not sold. All title, ownership rights, and intellectual property rights in and to
+the Software (including but not limited to any algorithms, architectures, screen
+capture mechanisms, DOM extraction techniques, UI automation heuristics, graphics,
+audio, text, and accompanying documentation) are owned exclusively by Licensor.
+
+2. GRANT OF LICENSE
+-------------------
+Licensor grants you a personal, non-exclusive, non-transferable, revocable license
+to install and execute the Software on compatible Windows devices solely for your
+personal or internal business purposes, strictly in accordance with this Agreement.
+
+3. STRICT PROHIBITION AGAINST REVERSE ENGINEERING
+--------------------------------------------------
+You shall NOT, and shall not permit, encourage, or facilitate any third party to:
+  (a) Reverse engineer, decompile, disassemble, unpack, decrypt, or otherwise
+      attempt to derive, reconstruct, or discover the source code, underlying
+      algorithms, protocols, or structure of the Software;
+  (b) Modify, adapt, translate, patch, hook, or create derivative works based
+      upon the Software in whole or in part;
+  (c) Attach dynamic debuggers, memory dumpers, disassemblers, packet analyzers,
+      or tracing tools to the running process of the Software;
+  (d) Defeat, tamper with, bypass, or circumvent any security mechanisms,
+      anti-debugging measures, obfuscation shields, or integrity verification
+      features incorporated in the Software;
+  (e) Sublicense, rent, lease, sell, distribute, broadcast, or commercialize
+      the Software or any portion thereof without express written consent.
+
+4. USER API KEYS & DATA PRIVACY
+-------------------------------
+The Software operates on a Bring-Your-Own-Key (BYOK) architecture. Any third-party
+AI provider API keys (such as Groq or Google Gemini) entered by you are encrypted
+locally on your machine using Windows Data Protection API (DPAPI) and are never
+transmitted to Licensor. You are solely responsible for compliance with any terms
+and conditions of your chosen third-party AI provider.
+
+5. TERMINATION
+--------------
+Without prejudice to any other rights, Licensor may terminate this Agreement
+immediately if you fail to comply with any of the terms and conditions herein.
+In such event, you must immediately cease all use of the Software and destroy all
+copies in your possession.
+
+6. DISCLAIMER OF WARRANTIES & LIMITATION OF LIABILITY
+-----------------------------------------------------
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL LICENSOR BE
+LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+================================================================================
+Copyright (c) 2026 MyOverlay. All Rights Reserved.
