@@ -82,11 +82,15 @@ foreach ($path in $candidatePaths) {
 }
 
 if (-not $sourceExe) {
-    Write-Host "No local binary found. Downloading latest MyOverlay.exe from GitHub..." -ForegroundColor Cyan
-    $downloadUrl = "https://github.com/Ronitdoes/fk-codetantra/releases/latest/download/MyOverlay.exe"
+    # The bare MyOverlay.exe is not published as a release asset - only
+    # MyOverlay-Setup.zip is. Download the zip and extract the exe from it.
+    Write-Host "No local binary found. Downloading latest MyOverlay-Setup.zip from GitHub..." -ForegroundColor Cyan
+    $downloadUrl = "https://github.com/Ronitdoes/fk-codetantra/releases/latest/download/MyOverlay-Setup.zip"
     $tempDir = Join-Path $env:TEMP "MyOverlayInstall"
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
-    $downloadTarget = Join-Path $tempDir "MyOverlay.exe"
+    $downloadTarget = Join-Path $tempDir "MyOverlay-Setup.zip"
+    $extractedExe = Join-Path $tempDir "MyOverlay.exe"
+    Remove-Item $extractedExe -Force -ErrorAction SilentlyContinue
 
     $downloadSuccess = $false
 
@@ -123,20 +127,32 @@ if (-not $sourceExe) {
                 $downloadSuccess = $true
             }
         } catch {
-            Write-Error "Failed to download MyOverlay.exe. Error: $($_.Exception.Message)"
+            Write-Error "Failed to download MyOverlay-Setup.zip. Error: $($_.Exception.Message)"
             Start-Sleep -Seconds 5
             return
         }
     }
 
-    if ($downloadSuccess) {
-        $sourceExe = $downloadTarget
-        Write-Host "Downloaded successfully ($([Math]::Round((Get-Item $sourceExe).Length / 1MB, 1)) MB)" -ForegroundColor Green
-    } else {
-        Write-Error "Could not download a valid MyOverlay.exe executable."
+    if (-not $downloadSuccess) {
+        Write-Error "Could not download MyOverlay-Setup.zip."
         Start-Sleep -Seconds 5
         return
     }
+
+    try {
+        Write-Host "Extracting MyOverlay.exe from the Setup zip..." -ForegroundColor Gray
+        Expand-Archive -Path $downloadTarget -DestinationPath $tempDir -Force
+    } catch {
+        Write-Warning "Expand-Archive extraction failed: $($_.Exception.Message)"
+    }
+
+    $sourceExe = $extractedExe
+    if (-not (Test-Path $sourceExe) -or (Get-Item $sourceExe).Length -le 1000000) {
+        Write-Error "Could not obtain a valid MyOverlay.exe executable from MyOverlay-Setup.zip."
+        Start-Sleep -Seconds 5
+        return
+    }
+    Write-Host "Downloaded and extracted successfully ($([Math]::Round((Get-Item $sourceExe).Length / 1MB, 1)) MB)" -ForegroundColor Green
 }
 
 Write-Host "      Using source binary: $sourceExe" -ForegroundColor Gray
