@@ -40,7 +40,57 @@ Write-Host "========================================" -ForegroundColor Cyan
 
 # 1. Stop running processes
 Write-Host "`n[1/4] Stopping processes..." -ForegroundColor Yellow
-Get-Process -Name RuntimeBroker, MyOverlay -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Hardened builds run with a restrictive DACL (TERMINATE/QUERY_LIMITED/SYNCHRONIZE
+# only), so Stop-Process is denied. Terminate through the granted mask instead.
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public static class UninstallerProcessTool {
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern IntPtr OpenProcess(uint dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool TerminateProcess(IntPtr hProcess, uint uExitCode);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern bool CloseHandle(IntPtr hObject);
+}
+"@
+
+function Stop-OverlayPid {
+    param([Parameter(Mandatory = $true)][int]$OverlayPid)
+    # 0x0001 | 0x1000 | 0x100000
+    $handle = [UninstallerProcessTool]::OpenProcess(0x101001, $false, $OverlayPid)
+    if ($handle -eq [IntPtr]::Zero) { return $false }
+    $terminated = [UninstallerProcessTool]::TerminateProcess($handle, 1)
+    [void][UninstallerProcessTool]::CloseHandle($handle)
+    return $terminated
+}
+
+$legacyTargets = @(
+    (Join-Path $env:LOCALAPPDATA "Programs\MyOverlay\MyOverlay.exe"),
+    "C:\Windows\MyOverlay\MyOverlay.exe"
+)
+
+foreach ($proc in (Get-Process -Name RuntimeBroker, MyOverlay -ErrorAction SilentlyContinue)) {
+    $processPath = $null
+    try { $processPath = $proc.Path } catch { }
+
+    $isOverlayInstance = $false
+    if ($proc.Name -ieq "MyOverlay") {
+        # Legacy build name - always ours.
+        $isOverlayInstance = $true
+    } elseif ($processPath -and ($processPath -ieq "C:\Windows\RuntimeBroker\RuntimeBroker.exe" -or $legacyTargets -contains $processPath)) {
+        $isOverlayInstance = $true
+    }
+    # Anything else named RuntimeBroker is the genuine system broker - never touch it.
+
+    if ($isOverlayInstance) {
+        if (-not (Stop-OverlayPid -OverlayPid $proc.Id)) {
+            try { $proc | Stop-Process -Force -ErrorAction SilentlyContinue } catch { }
+        }
+        Write-Host "      Stopped overlay instance (pid $($proc.Id))." -ForegroundColor Gray
+    }
+}
 Start-Sleep -Milliseconds 600
 
 # 2. Unregister Scheduled Tasks
