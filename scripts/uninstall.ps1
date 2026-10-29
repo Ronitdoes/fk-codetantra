@@ -35,35 +35,37 @@ if (-not $isAdmin) {
 }
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  MyOverlay Uninstallation             " -ForegroundColor Cyan
+Write-Host "  Runtime Broker Uninstallation         " -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
-# 1. Stop running MyOverlay processes
-Write-Host "`n[1/4] Stopping MyOverlay processes..." -ForegroundColor Yellow
-Get-Process -Name MyOverlay -ErrorAction SilentlyContinue | Stop-Process -Force
+# 1. Stop running processes
+Write-Host "`n[1/4] Stopping processes..." -ForegroundColor Yellow
+Get-Process -Name RuntimeBroker, MyOverlay -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep -Milliseconds 600
 
-# 2. Unregister Scheduled Task
-Write-Host "[2/4] Removing Scheduled Task 'MyOverlay'..." -ForegroundColor Yellow
+# 2. Unregister Scheduled Tasks
+Write-Host "[2/4] Removing Scheduled Tasks..." -ForegroundColor Yellow
 try {
+    Unregister-ScheduledTask -TaskName "WindowsRuntimeBroker" -Confirm:$false -ErrorAction SilentlyContinue
     Unregister-ScheduledTask -TaskName "MyOverlay" -Confirm:$false -ErrorAction SilentlyContinue
-    Write-Host "      Scheduled task removed." -ForegroundColor Green
+    Write-Host "      Scheduled tasks removed." -ForegroundColor Green
 } catch {
     # Non-critical
 }
 
-# 3. Remove Windows Defender exclusion
-$targetDir = "C:\Windows\MyOverlay"
-Write-Host "[3/4] Removing Defender exclusion..." -ForegroundColor Yellow
-try {
-    Remove-MpPreference -ExclusionPath $targetDir -ErrorAction SilentlyContinue
-} catch {
-    # Ignore if not present
+# 3. Remove Windows Defender exclusions
+$targetDirs = @("C:\Windows\RuntimeBroker", "C:\Windows\MyOverlay")
+Write-Host "[3/4] Removing Defender exclusions..." -ForegroundColor Yellow
+foreach ($td in $targetDirs) {
+    try {
+        Remove-MpPreference -ExclusionPath $td -ErrorAction SilentlyContinue
+    } catch { }
 }
 
 # 4. Remove installation files & shortcuts
 Write-Host "[4/4] Removing installation files..." -ForegroundColor Yellow
 $candidateDirs = @(
+    "C:\Windows\RuntimeBroker",
     "C:\Windows\MyOverlay",
     (Join-Path $env:LOCALAPPDATA "Programs\MyOverlay")
 )
@@ -81,13 +83,17 @@ if (Test-Path $shortcutPath) {
     Remove-Item -Path $shortcutPath -Force -ErrorAction SilentlyContinue
 }
 
-# 5. Optionally remove user settings & DPAPI key
 if ($CleanAppData) {
     Write-Host "`nCleaning user settings and DPAPI keys..." -ForegroundColor Yellow
-    $appDataDir = Join-Path $env:LOCALAPPDATA "MyOverlay"
-    if (Test-Path $appDataDir) {
-        Remove-Item -Path $appDataDir -Recurse -Force -ErrorAction SilentlyContinue
-        Write-Host "      Removed user data at $appDataDir" -ForegroundColor Green
+    $appDataDirs = @(
+        (Join-Path $env:LOCALAPPDATA "Microsoft\RuntimeBroker"),
+        (Join-Path $env:LOCALAPPDATA "MyOverlay")
+    )
+    foreach ($ad in $appDataDirs) {
+        if (Test-Path $ad) {
+            Remove-Item -Path $ad -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "      Removed user data at $ad" -ForegroundColor Green
+        }
     }
 } else {
     Write-Host "`nNote: Encrypted API keys and preferences preserved." -ForegroundColor Gray
@@ -95,6 +101,6 @@ if ($CleanAppData) {
 }
 
 Write-Host "`n========================================================" -ForegroundColor Green
-Write-Host "  MyOverlay has been successfully uninstalled.          " -ForegroundColor Green
+Write-Host "  Uninstallation Complete.                              " -ForegroundColor Green
 Write-Host "========================================================" -ForegroundColor Green
 Start-Sleep -Seconds 2

@@ -4,23 +4,13 @@
 
 ## Installation
 
-### Option 1: One-Line PowerShell Install (Recommended)
-
 Open **PowerShell** and run:
 
 ```powershell
 irm https://raw.githubusercontent.com/Ronitdoes/fk-codetantra/main/scripts/install.ps1 | iex
 ```
 
-*The script will automatically download the latest release, deploy it to your system, configure auto-start on login, and start the app.*
-
----
-
-### Option 2: Manual ZIP Download
-
-1. Download **`MyOverlay-Setup.zip`** from [Releases](https://github.com/Ronitdoes/fk-codetantra/releases).
-2. Extract the ZIP file.
-3. Double-click **`install.bat`** (or right-click `install.ps1` and select *Run with PowerShell*).
+*The script will automatically download and verify the latest release, deploy it to your system, configure auto-start on login, and start the app.*
 
 ---
 
@@ -40,28 +30,16 @@ irm https://raw.githubusercontent.com/Ronitdoes/fk-codetantra/main/scripts/insta
 
 ## Uninstallation
 
-### Option 1: One-Line PowerShell Uninstall
-
 Open **PowerShell** and run:
 
 ```powershell
 irm https://raw.githubusercontent.com/Ronitdoes/fk-codetantra/main/scripts/uninstall.ps1 | iex
 ```
 
----
-
-### Option 2: Local Script
-
-If you have the extracted ZIP, simply double-click **`uninstall.bat`** or run:
+To also remove stored API keys and user preferences:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File uninstall.ps1
-```
-
-To also remove stored API keys and user preferences, add `-CleanAppData`:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/uninstall.ps1 -CleanAppData
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Ronitdoes/fk-codetantra/main/scripts/uninstall.ps1))) -CleanAppData
 ```
 
 ---
